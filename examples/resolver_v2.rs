@@ -29,7 +29,7 @@ impl From<krates::cm::Package> for Simple {
     fn from(pkg: krates::cm::Package) -> Self {
         Self {
             id: pkg.id.into(),
-            features: pkg.features
+            features: pkg.features,
         }
     }
 }
@@ -60,20 +60,26 @@ fn main() {
         cmd.other_options(vec!["--filter-platform".to_owned(), target_triple]);
         cmd.manifest_path(manifest_path);
         let metadata_cmd: MetadataCommand = cmd.into();
-        metadata_cmd.exec().expect("Failed to invoke `cargo metadata`")
+        metadata_cmd
+            .exec()
+            .expect("Failed to invoke `cargo metadata`")
     };
 
     let normal_deps: Graph = {
         let mut builder = krates::Builder::new();
         builder.ignore_kind(krates::DepKind::Dev, krates::Scope::All);
         builder.ignore_kind(krates::DepKind::Build, krates::Scope::All);
-        builder.build_with_metadata(metadata.clone(), krates::NoneFilter).unwrap()
+        builder
+            .build_with_metadata(metadata.clone(), krates::NoneFilter)
+            .unwrap()
     };
 
     let build_deps: Graph = {
         let mut builder = krates::Builder::new();
         builder.ignore_kind(krates::DepKind::Dev, krates::Scope::All);
-        builder.build_with_metadata(metadata, krates::NoneFilter).unwrap()
+        builder
+            .build_with_metadata(metadata, krates::NoneFilter)
+            .unwrap()
     };
 
     let normal_nodes = normal_deps.graph().raw_nodes();
@@ -84,7 +90,6 @@ fn main() {
     println!("Build-time depdency tree:");
     println!("{:#?}", build_nodes);
 }
-
 
 /// Returns the default target triple for the rustc we're using
 fn rustc_host_target_triple() -> String {
